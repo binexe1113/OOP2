@@ -10,6 +10,7 @@ public class Aluno{
     private Aula aula;
     private AvaliacaoFisica avaliacaoFisica;
     private Academia academia;
+    private Usuario usuario;
 
 
 public Aluno(int idAluno, String nome, String cpf, int idade, String email, String telefone, Matricula matricula, Treino treino, Aula aula, AvaliacaoFisica avaliacaoFisica, Academia academia) {

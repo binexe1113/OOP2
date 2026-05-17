@@ -127,6 +127,19 @@ classDiagram
         cadastrarRecepcionista()
     }
 
+    class Usuario {
+        int idUsuario
+        string emailLogin
+        string hashSenha
+        string role
+        bool status_conta
+        string token_recuperacao
+        Date data_criacao
+        realizarLogin()
+        redefinirSenha()
+        validarPermissao()
+    }
+
     %% Relacionamentos
     Plano "1..1" -- "0..*" Matricula
     Aluno "1..1" *-- "1..1" Matricula
@@ -137,6 +150,9 @@ classDiagram
     Aluno "1..*" --> "0..*" Aula
     Aluno "1..*" --> "1..1" AvaliacaoFisica
     Treino "0..*" -- Professor
+
+    Usuario "1..1" -- "0..1" Aluno
+    Usuario "1..1" -- "0..1" Funcionario
     
     %% Herança
     Funcionario <|-- Gerente

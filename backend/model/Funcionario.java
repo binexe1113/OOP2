@@ -10,6 +10,7 @@ public class Funcionario{
     private double salario;
     private Date dataAdmissao;
     private Academia academia;
+    private Usuario usuario;
 
     public Funcionario(int idFuncionario, String nome, String cpf, String email, String telefone, double salario, Date dataAdmissao, Academia academia) {
         this.idFuncionario = idFuncionario;
