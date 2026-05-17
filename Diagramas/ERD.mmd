@@ -1,0 +1,143 @@
+classDiagram
+    class Plano {
+        int idPlano
+        string nome
+        float preco
+        string descricao
+        bool status
+        cancelarPlano()
+        adicionarPlano()
+        buscarPorId(int idplano)
+    }
+
+    class Matricula {
+        int idMatricula
+        date dataInicio
+        date dataFim
+        bool status
+        validarMatricula()
+        adicionarMatricula()
+        salvar(Matricula novaMatricula)
+    }
+
+    class Financeiro {
+        int idFinanceiro
+        int idPagamento
+        date dataPagamento
+        double valorPagamento
+        string metodoPagamento
+        bool status
+        realizarFinanceiro()
+        validarFinanceiro()
+        emitirBoletoFinanceiro()
+        consultarInadimplencia()
+    }
+
+    class AvaliacaoFisica {
+        int idAvaliacao
+        date data
+        float peso
+        float altura
+        float percentualGordura
+        float massaMuscular
+        string medidas
+        date proximaAvaliacao
+        visualizarHistoricoFisico()
+        realizarAvaliacaoFisica()
+    }
+
+    class Aluno {
+        int idAluno
+        string nome
+        string cpf
+        int idade
+        string email
+        string telefone
+        int idMatricula
+        cadastrarAluno()
+        AgendarAvaliacao()
+        validarAluno()
+        consultarHistoricoFinanceiro()
+        consultarAlunos()
+        listarAlunos()
+        buscarPorCpf(string cpfAluno)
+    }
+
+    class Aula {
+        int idAula
+        string nome
+        time horario
+        int capacidadeMaxima
+        consultarAgendaAula()
+        agendarAulaExperimental()
+    }
+
+    class Treino {
+        int idTreino
+        string descricao
+        date dataInicio
+        date dataFim
+        consultarTreino()
+        elaborarTreino()
+        adicionarTreino()
+        removerTreino()
+        buscarTreino(int idMatricula)
+        consultarTreinoNaMemoria(int idAluno)
+        consultarTreinoPorLoop(int idAlunoLogado)
+        listarTodosTreinos()
+        gerarDescricaoFormatada(Treino)
+    }
+
+    class Professor {
+        int idProfessor;
+        String nome;
+        String cpf;
+        String email;
+        String telefone;
+        double valorHoraAula;
+    }
+
+    class Academia {
+        int idAcademia
+        string nome
+        string endereço
+        string telefone
+        string email
+        trocarAluno()
+    }
+
+    class Funcionario {
+        int idfunc
+        string nome
+        string cpf
+        double salario
+        date data_admissao
+        registrarJornarda()
+    }
+
+    class Gerente {
+        double bonificação
+        string nivelAcesso
+        gerarRelatorioTrimestral()
+        MonitorarTaxaRetencao()
+    }
+
+    class Recepcionista {
+        string turno
+        cadastrarRecepcionista()
+    }
+
+    %% Relacionamentos
+    Plano "1..1" -- "0..*" Matricula
+    Aluno "1..1" *-- "1..1" Matricula
+    Financeiro "1..1" -- "1..1" Academia
+    Academia "1..*" *-- "0..*" Aluno
+    Academia "1..*" *-- "1..1" Funcionario
+    Aluno "1..1" o--> "1..1" Treino
+    Aluno "1..*" --> "0..*" Aula
+    Aluno "1..*" --> "1..1" AvaliacaoFisica
+    Treino "0..*" -- Professor
+    
+    %% Herança
+    Funcionario <|-- Gerente
+    Funcionario <|-- Recepcionista
