@@ -17,11 +17,11 @@
 
           packages = with pkgs; [
             # Java
-            jdk17          # JDK 17 LTS (compatível com Tomcat 9+)
+            jdk21       # JDK 21 LTS (compatível com Tomcat 9+)
             maven          # Gerenciador de build/dependências
 
             # Servidor de aplicação
-            tomcat9        # Tomcat 9 (requisito do projeto)
+            tomcat11        # Tomcat 11 (requisito do projeto)
 
             # Banco de dados
             mysql84        # MySQL Server 8.4 (LTS)
