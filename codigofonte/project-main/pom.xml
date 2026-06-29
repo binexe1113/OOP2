@@ -52,6 +52,13 @@
     <scope>compile</scope>
   </dependency>
 
+  <dependency>
+    <groupId>commons-codec</groupId>
+    <artifactId>commons-codec</artifactId>
+    <version>1.17.0</version>
+  </dependency>
+
+
    <!-- Source: https://mvnrepository.com/artifact/jakarta.mail/jakarta.mail-api -->
   <dependency>
     <groupId>jakarta.mail</groupId>
