@@ -33,23 +33,9 @@
 
           shellHook = ''
             echo ""
-            echo "╔══════════════════════════════════════════════╗"
-            echo "║    Ambiente APO2 — Java Web / Maven / MySQL  ║"
-            echo "╚══════════════════════════════════════════════╝"
-            echo ""
-            echo "  Java   : $(java -version 2>&1 | head -1)"
-            echo "  Maven  : $(mvn -version 2>&1 | head -1)"
-            echo "  MySQL  : $(mysqld --version 2>&1 | head -1)"
-            echo ""
-            echo "  Comandos úteis:"
-            echo "    mvn clean package          → gera o WAR em target/"
-            echo "    mysql -u root              → abre o cliente MySQL"
-            echo "    bash codigofonte/ambiente/setup-db.sh  → cria o banco"
-            echo ""
-
-            export JAVA_HOME="${pkgs.jdk17}"
-            export CATALINA_HOME="${pkgs.tomcat9}"
-            export PATH="$JAVA_HOME/bin:$PATH"
+            echo "================================================"
+            echo ||                    TESTE                     ||"
+            echo "================================================"
           '';
         };
       });
