@@ -67,6 +67,18 @@ public class CheckInServlet extends HttpServlet {
                 return;
             }
 
+            // 3.5 Validação: O aluno deve possuir um treino cadastrado
+            com.academia.dao.TreinoDAO treinoDAO = new com.academia.dao.TreinoDAO();
+            com.academia.model.Treino treino = treinoDAO.buscarPorAluno(aluno.getIdAluno());
+            if (treino == null) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                jsonResponse.addProperty("sucesso", false);
+                jsonResponse.addProperty("mensagem", "Não autorizado: Você precisa ter um treino ativo cadastrado para realizar check-in.");
+                response.getWriter().write(gson.toJson(jsonResponse));
+                return;
+            }
+
+
             // 4. Ler o idAcademia do JSON (se houver) ou assume a unidade 1 como padrão
             int idAcademia = 1;
             Integer idTreino = null;

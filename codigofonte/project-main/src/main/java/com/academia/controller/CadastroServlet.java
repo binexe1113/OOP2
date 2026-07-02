@@ -91,12 +91,11 @@ public class CadastroServlet extends HttpServlet {
             conn.setAutoCommit(false);
 
             // 1. Inserir na tabela Usuario
-            String sqlUser = "INSERT INTO Usuario (emailLogin, hashSenha, role, status_conta, token_recuperacao) VALUES (?, ?, 'ALUNO', false, ?)";
+            String sqlUser = "INSERT INTO Usuario (emailLogin, hashSenha, role, status_conta) VALUES (?, ?, 'ALUNO', false)";
             int idUsuario = 0;
             try (PreparedStatement psUser = conn.prepareStatement(sqlUser, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 psUser.setString(1, email);
                 psUser.setString(2, senhaHash);
-                psUser.setString(3, token);
                 psUser.executeUpdate();
                 try (ResultSet rs = psUser.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -120,7 +119,6 @@ public class CadastroServlet extends HttpServlet {
 
             // 3. Inserir na tabela Aluno
             String sqlAluno = "INSERT INTO Aluno (nome, cpf, idade, email, telefone, idMatricula, idUsuario) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            int idAluno = 0;
             try (PreparedStatement psAluno = conn.prepareStatement(sqlAluno, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 psAluno.setString(1, nome);
                 psAluno.setString(2, cpf);
@@ -130,18 +128,6 @@ public class CadastroServlet extends HttpServlet {
                 psAluno.setInt(6, idMatricula);
                 psAluno.setInt(7, idUsuario);
                 psAluno.executeUpdate();
-                try (ResultSet rs = psAluno.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        idAluno = rs.getInt(1);
-                    }
-                }
-            }
-
-            // 4. Vincular Aluno à Academia padrão (ID 1)
-            String sqlAcad = "INSERT INTO Academia_Aluno (idAcademia, idAluno) VALUES (1, ?)";
-            try (PreparedStatement psAcad = conn.prepareStatement(sqlAcad)) {
-                psAcad.setInt(1, idAluno);
-                psAcad.executeUpdate();
             }
 
             conn.commit();
@@ -159,13 +145,12 @@ public class CadastroServlet extends HttpServlet {
     }
 
     private boolean cadastrarUsuarioSimples(String email, String senhaHash, String role, String token) throws SQLException {
-        String sql = "INSERT INTO Usuario (emailLogin, hashSenha, role, status_conta, token_recuperacao) VALUES (?, ?, ?, false, ?)";
+        String sql = "INSERT INTO Usuario (emailLogin, hashSenha, role, status_conta) VALUES (?, ?, ?, false)";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, senhaHash);
             ps.setString(3, role);
-            ps.setString(4, token);
             return ps.executeUpdate() > 0;
         }
     }

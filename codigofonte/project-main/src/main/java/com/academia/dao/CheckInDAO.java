@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,16 +15,11 @@ public class CheckInDAO {
      * Insere um registro de Check-in associando o Aluno e a Academia
      */
     public boolean registrar(int idAluno, int idAcademia, Integer idTreino) throws SQLException {
-        String sql = "INSERT INTO CheckIn (idAluno, idAcademia, idTreino) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO CheckIn (idAluno, idAcademia) VALUES (?, ?)";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, idAluno);
             ps.setInt(2, idAcademia);
-            if (idTreino != null) {
-                ps.setInt(3, idTreino);
-            } else {
-                ps.setNull(3, Types.INTEGER);
-            }
             return ps.executeUpdate() > 0;
         }
     }

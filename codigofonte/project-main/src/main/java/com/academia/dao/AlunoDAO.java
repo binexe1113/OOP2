@@ -17,7 +17,7 @@ public class AlunoDAO {
         String sql = "SELECT a.*, " +
                      "m.dataInicio, m.dataFim, m.status AS matricula_status, " +
                      "p.idPlano, p.nome AS plano_nome, p.preco AS plano_preco, p.descricao AS plano_descricao, p.status AS plano_status, " +
-                     "u.emailLogin, u.hashSenha, u.role, u.status_conta, u.token_recuperacao, u.data_criacao " +
+                     "u.emailLogin, u.hashSenha, u.role, u.status_conta, u.data_criacao " +
                      "FROM Aluno a " +
                      "INNER JOIN Matricula m ON a.idMatricula = m.idMatricula " +
                      "INNER JOIN Plano p ON m.idPlano = p.idPlano " +
@@ -36,7 +36,7 @@ public class AlunoDAO {
         String sql = "SELECT a.*, " +
                      "m.dataInicio, m.dataFim, m.status AS matricula_status, " +
                      "p.idPlano, p.nome AS plano_nome, p.preco AS plano_preco, p.descricao AS plano_descricao, p.status AS plano_status, " +
-                     "u.emailLogin, u.hashSenha, u.role, u.status_conta, u.token_recuperacao, u.data_criacao " +
+                     "u.emailLogin, u.hashSenha, u.role, u.status_conta, u.data_criacao " +
                      "FROM Aluno a " +
                      "INNER JOIN Matricula m ON a.idMatricula = m.idMatricula " +
                      "INNER JOIN Plano p ON m.idPlano = p.idPlano " +
@@ -58,7 +58,7 @@ public class AlunoDAO {
         String sql = "SELECT a.*, " +
                      "m.dataInicio, m.dataFim, m.status AS matricula_status, " +
                      "p.idPlano, p.nome AS plano_nome, p.preco AS plano_preco, p.descricao AS plano_descricao, p.status AS plano_status, " +
-                     "u.emailLogin, u.hashSenha, u.role, u.status_conta, u.token_recuperacao, u.data_criacao " +
+                     "u.emailLogin, u.hashSenha, u.role, u.status_conta, u.data_criacao " +
                      "FROM Aluno a " +
                      "INNER JOIN Matricula m ON a.idMatricula = m.idMatricula " +
                      "INNER JOIN Plano p ON m.idPlano = p.idPlano " +
@@ -158,7 +158,7 @@ public class AlunoDAO {
             u.setHashSenha(rs.getString("hashSenha"));
             u.setRole(rs.getString("role"));
             u.setStatus_conta(rs.getBoolean("status_conta"));
-            u.setToken_recuperacao(rs.getString("token_recuperacao"));
+            u.setToken_recuperacao(null);
             u.setData_criacao(rs.getTimestamp("data_criacao"));
         }
 
