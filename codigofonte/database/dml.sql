@@ -12,6 +12,7 @@ DELETE FROM Plano;
 DELETE FROM Academia;
 DELETE FROM Usuario;
 DELETE FROM Treino;
+DELETE FROM BlocoTreino;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. Inserir Academia Padrão (ID 1)
@@ -50,3 +51,10 @@ VALUES (1, 'Aluno de Teste', '123.456.789-00', 25, 'aluno@exemplo.com', '(11) 98
 -- 8. Inserir Treino Inicial (Agora com professor e dataFim já no INSERT)
 INSERT INTO Treino (idTreino, descricao, dataInicio, dataFim, idAluno, idProfessor) 
 VALUES (1, 'Treino A - Peito e Tríceps:\n- Supino Reto: 4x10\n- Tríceps Testa: 3x12', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 1, 2);
+
+-- 9. Inserir Estrutura dos Blocos de Treino Padrão (A, B, C, D)
+INSERT INTO BlocoTreino (nome_bloco, foco, exercicios) VALUES
+('A', 'Peito e Tríceps', 'Supino Reto: 4x10;Supino Inclinado com Halteres: 4x10;Tríceps Testa: 3x12;Tríceps Pulley: 3x12'),
+('B', 'Costas e Bíceps', 'Puxada Frente: 4x10;Remada Curvada: 4x10;Rosca Direta: 3x12;Rosca Martelo: 3x12'),
+('C', 'Pernas Completo', 'Agachamento Livre: 4x10;Leg Press 45: 4x10;Cadeira Extensora: 3x12;Mesa Flexora: 3x12'),
+('D', 'Ombros e Trapézio', 'Desenvolvimento com Halteres: 4x10;Elevação Lateral: 4x12;Encolhimento com Barra: 4x15');

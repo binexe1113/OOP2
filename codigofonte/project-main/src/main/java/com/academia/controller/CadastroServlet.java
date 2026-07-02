@@ -37,7 +37,7 @@ public class CadastroServlet extends HttpServlet {
             String role = data.get("role").getAsString().toUpperCase();
 
             String senhaCriptografada = SecurityUtil.hashPassword(senha);
-            String tokenValidacao = UUID.randomUUID().toString();
+            String tokenValidacao = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(email.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             boolean cadastradoComSucesso = false;
 

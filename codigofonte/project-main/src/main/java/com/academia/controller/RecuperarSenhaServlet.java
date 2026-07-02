@@ -35,7 +35,7 @@ public class RecuperarSenhaServlet extends HttpServlet {
             String email = data.get("email").getAsString();
 
             // 1. Gerar token de recuperação único
-            String token = UUID.randomUUID().toString();
+            String token = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(email.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             // 2. Tentar atualizar o token do usuário correspondente no banco
             boolean tokenGerado = usuarioDAO.gerarTokenRecuperacao(email, token);

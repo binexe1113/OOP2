@@ -121,3 +121,11 @@ CREATE TABLE IF NOT EXISTS CheckIn (
     CONSTRAINT FK_CheckIn_Academia FOREIGN KEY (idAcademia)
         REFERENCES Academia (idAcademia) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela: BlocoTreino
+CREATE TABLE IF NOT EXISTS BlocoTreino (
+    nome_bloco VARCHAR(50) NOT NULL,
+    foco VARCHAR(255) NOT NULL,
+    exercicios TEXT NOT NULL,
+    CONSTRAINT PK_BlocoTreino PRIMARY KEY (nome_bloco)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

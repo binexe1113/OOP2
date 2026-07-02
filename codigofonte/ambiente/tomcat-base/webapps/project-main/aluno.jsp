@@ -145,12 +145,25 @@
                             
                             <div class="mb-3 p-3 bg-light rounded border-start border-primary border-4">
                                 <div class="small text-muted">Professor Responsável</div>
-                                <div class="fw-bold text-dark"><%= treinoLogado.getProfessor().getNome() %></div>
+                                <div class="fw-bold text-dark">
+								    <%= (treinoLogado.getProfessor() != null) ? treinoLogado.getProfessor().getNome() : "Professor não atribuído" %>
+								</div>
                                 <div class="small text-muted mt-2">Período de Validade</div>
-                                <div class="fw-medium text-secondary">
-                                    <%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(treinoLogado.getDataInicio()) %> até 
-                                    <%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(treinoLogado.getDataFim()) %>
-                                </div>
+								<div class="fw-medium text-secondary">
+								    <% 
+								        if (treinoLogado != null && treinoLogado.getDataInicio() != null && treinoLogado.getDataFim() != null) {
+								            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+								    %>
+								            <%= sdf.format(treinoLogado.getDataInicio()) %> até 
+								            <%= sdf.format(treinoLogado.getDataFim()) %>
+								    <% 
+								        } else {
+								    %>
+								            Data não disponível
+								    <% 
+								        }
+								    %>
+								</div>
                             </div>
 
                             <div class="mt-4">

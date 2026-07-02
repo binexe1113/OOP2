@@ -51,8 +51,8 @@ public class UsuarioDAO {
 
     public Usuario buscarPorToken(String token) throws SQLException {
         try {
-            // Decodifica o token stateless que contém o email do usuário
-            String email = new String(java.util.Base64.getDecoder().decode(token.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            // Decodifica o token stateless que contém o email usando URLDecoder seguro
+            String email = new String(java.util.Base64.getUrlDecoder().decode(token.trim().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
             String sql = "SELECT * FROM Usuario WHERE emailLogin = ?";
             try (Connection conn = DbConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -78,7 +78,6 @@ public class UsuarioDAO {
     }
 
     public boolean gerarTokenRecuperacao(String email, String token) throws SQLException {
-        // Apenas verifica se o usuário existe, já que o token de link enviado por e-mail é o próprio e-mail em Base64
         String sql = "SELECT 1 FROM Usuario WHERE emailLogin = ?";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -91,8 +90,8 @@ public class UsuarioDAO {
 
     public boolean redefinirSenha(String token, String hashNovaSenha) throws SQLException {
         try {
-            // Decodifica o token stateless contendo o email
-            String email = new String(java.util.Base64.getDecoder().decode(token.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            // Decodifica o token stateless contendo o email usando URLDecoder seguro
+            String email = new String(java.util.Base64.getUrlDecoder().decode(token.trim().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
             String sql = "UPDATE Usuario SET hashSenha = ? WHERE emailLogin = ?";
             try (Connection conn = DbConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(sql)) {
