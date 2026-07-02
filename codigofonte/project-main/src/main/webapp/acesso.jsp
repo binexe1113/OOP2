@@ -103,6 +103,19 @@
 <script>
 $(document).ready(function() {
 
+    // --- VERIFICA PARÂMETROS DE ATIVAÇÃO NA URL ---
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('ativado')) {
+        $('#login-alert').addClass('alert-success').text('Sua conta foi ativada com sucesso! Faça login abaixo.').removeClass('d-none');
+    } else if (urlParams.has('erroAtivacao')) {
+        const erro = urlParams.get('erroAtivacao');
+        let msg = 'Erro ao ativar a conta.';
+        if (erro === 'invalido') msg = 'Token de ativação inválido.';
+        else if (erro === 'nao_encontrado') msg = 'Link de ativação expirado ou já utilizado.';
+        else if (erro === 'db_erro' || erro === 'banco') msg = 'Erro interno do servidor ao ativar.';
+        $('#login-alert').addClass('alert-danger').text(msg).removeClass('d-none');
+    }
+
     // --- AJAX DO LOGIN ---
     $('#form-login').on('submit', function(e) {
         e.preventDefault(); // Impede o reload da página
@@ -116,29 +129,40 @@ $(document).ready(function() {
         btn.prop('disabled', true);
         spinner.removeClass('d-none');
 
-        // Captura os dados do formulário serializados
-        let formData = $(this).serialize();
+        // Captura os dados do formulário como JSON
+        let formData = {
+            email: $('#login-email').val(),
+            senha: $('#login-senha').val()
+        };
 
         $.ajax({
-            url: 'LoginController', // <-- URL da sua futura Servlet de Login
+            url: 'api/login',
             type: 'POST',
-            data: formData,
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
             dataType: 'json',
             success: function(response) {
-                // Exemplo de resposta da servlet: { success: true, redirect: 'dashboard.jsp' }
-                if (response.success) {
-                    alertBox.addClass('alert-success').text('Login efetuado com sucesso! Redirecionando...').removeClass('d-none');
+                if (response.sucesso) {
+                    alertBox.addClass('alert-success').text(response.mensagem || 'Login efetuado com sucesso! Redirecionando...').removeClass('d-none');
                     setTimeout(function() {
-                        window.location.href = response.redirect || 'dashboard.jsp';
+                        let urlDestino = 'index.jsp';
+                        if (response.role === 'ALUNO') urlDestino = 'aluno.jsp';
+                        else if (response.role === 'FUNCIONARIO') urlDestino = 'funcionario.jsp';
+                        else if (response.role === 'GERENTE') urlDestino = 'gerente.jsp';
+                        window.location.href = urlDestino;
                     }, 1500);
                 } else {
-                    alertBox.addClass('alert-danger').text(response.message || 'Credenciais inválidas.').removeClass('d-none');
+                    alertBox.addClass('alert-danger').text(response.mensagem || 'Credenciais inválidas.').removeClass('d-none');
                     btn.prop('disabled', false);
                     spinner.addClass('d-none');
                 }
             },
-            error: function() {
-                alertBox.addClass('alert-danger').text('Erro ao comunicar com o servidor.').removeClass('d-none');
+            error: function(xhr) {
+                let msg = 'Erro ao comunicar com o servidor.';
+                if (xhr.responseJSON && xhr.responseJSON.mensagem) {
+                    msg = xhr.responseJSON.mensagem;
+                }
+                alertBox.addClass('alert-danger').text(msg).removeClass('d-none');
                 btn.prop('disabled', false);
                 spinner.addClass('d-none');
             }
@@ -157,32 +181,38 @@ $(document).ready(function() {
         btn.prop('disabled', true);
         spinner.removeClass('d-none');
 
-        let formData = $(this).serialize();
+        // Captura os dados do formulário como JSON
+        let formData = {
+            nome: $('#reg-nome').val(),
+            email: $('#reg-email').val(),
+            senha: $('#reg-senha').val(),
+            role: 'ALUNO' // Por padrão, novos cadastros pela página são ALUNOS
+        };
 
         $.ajax({
-            url: 'CadastroController', // <-- URL da sua futura Servlet de Cadastro
+            url: 'api/cadastro',
             type: 'POST',
-            data: formData,
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
             dataType: 'json',
             success: function(response) {
-                // Exemplo de resposta da servlet: { success: true, message: 'Conta criada!' }
-                if (response.success) {
-                	
-               		// Cuidado: seu Java envia 'sucesso' e o JS esperava 'success'
-               	    let urlDestino = '';
-               	    if (response.role === 'ALUNO') urlDestino = 'aluno.jsp';
-               	    else if (response.role === 'FUNCIONARIO') urlDestino = 'funcionario.jsp';
-               	    else if (response.role === 'GERENTE') urlDestino = 'gerente.jsp';
-               	    window.location.href = urlDestino;
-               
+                if (response.sucesso) {
+                    alertBox.addClass('alert-success').text(response.mensagem).removeClass('d-none');
+                    $('#form-register')[0].reset();
+                    btn.prop('disabled', false);
+                    spinner.addClass('d-none');
                 } else {
-                    alertBox.addClass('alert-danger').text(response.message || 'Erro ao registrar usuário.').removeClass('d-none');
+                    alertBox.addClass('alert-danger').text(response.mensagem || 'Erro ao registrar usuário.').removeClass('d-none');
                     btn.prop('disabled', false);
                     spinner.addClass('d-none');
                 }
             },
-            error: function() {
-                alertBox.addClass('alert-danger').text('Erro técnico ao processar requisição.').removeClass('d-none');
+            error: function(xhr) {
+                let msg = 'Erro técnico ao processar requisição.';
+                if (xhr.responseJSON && xhr.responseJSON.mensagem) {
+                    msg = xhr.responseJSON.mensagem;
+                }
+                alertBox.addClass('alert-danger').text(msg).removeClass('d-none');
                 btn.prop('disabled', false);
                 spinner.addClass('d-none');
             }
