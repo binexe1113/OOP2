@@ -1,4 +1,4 @@
-package com.controller;
+package com.academia.controller;
 
 import com.academia.dao.AlunoDAO;
 import com.academia.dao.CheckInDAO;
@@ -39,7 +39,7 @@ public class CheckInServlet extends HttpServlet {
         Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("usuarioLogado") : null;
 
         if (usuarioLogado == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // HTTP 401
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             jsonResponse.addProperty("sucesso", false);
             jsonResponse.addProperty("mensagem", "Sessão expirada. Por favor, faça login novamente.");
             response.getWriter().write(gson.toJson(jsonResponse));
@@ -60,7 +60,7 @@ public class CheckInServlet extends HttpServlet {
 
             // 3. Validação: A matrícula deve estar ativa (isStatus() == true)
             if (aluno.getMatricula() == null || !aluno.getMatricula().isStatus()) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN); // HTTP 403
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 jsonResponse.addProperty("sucesso", false);
                 jsonResponse.addProperty("mensagem", "Não autorizado: Sua matrícula está inativa ou pendente.");
                 response.getWriter().write(gson.toJson(jsonResponse));
@@ -69,17 +69,22 @@ public class CheckInServlet extends HttpServlet {
 
             // 4. Ler o idAcademia do JSON (se houver) ou assume a unidade 1 como padrão
             int idAcademia = 1;
+            Integer idTreino = null;
             try {
                 JsonObject data = gson.fromJson(request.getReader(), JsonObject.class);
-                if (data != null && data.has("idAcademia")) {
-                    idAcademia = data.get("idAcademia").getAsInt();
+                if (data != null) {
+                    if (data.has("idAcademia")) {
+                        idAcademia = data.get("idAcademia").getAsInt();
+                    }
+                    if (data.has("idTreino") && !data.get("idTreino").isJsonNull()) {
+                        idTreino = data.get("idTreino").getAsInt();
+                    }
                 }
             } catch (Exception ignored) {
-                // Se não enviar JSON válido, prossegue com idAcademia = 1 padrão
             }
 
             // 5. Registrar o Check-in no banco de dados
-            boolean registrado = checkInDAO.registrar(aluno.getIdAluno(), idAcademia);
+            boolean registrado = checkInDAO.registrar(aluno.getIdAluno(), idAcademia, idTreino);
 
             if (registrado) {
                 jsonResponse.addProperty("sucesso", true);

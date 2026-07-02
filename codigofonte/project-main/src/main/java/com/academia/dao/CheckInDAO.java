@@ -12,6 +12,9 @@ import java.util.List;
 
 public class CheckInDAO {
 
+    /**
+     * Insere um registro de Check-in associando o Aluno e a Academia
+     */
     public boolean registrar(int idAluno, int idAcademia, Integer idTreino) throws SQLException {
         String sql = "INSERT INTO CheckIn (idAluno, idAcademia, idTreino) VALUES (?, ?, ?)";
         try (Connection conn = DbConnection.getConnection();
@@ -27,6 +30,9 @@ public class CheckInDAO {
         }
     }
 
+    /**
+     * Retorna a lista de datas e horários em que o Aluno realizou check-in
+     */
     public List<Timestamp> listarDatasPorAluno(int idAluno) throws SQLException {
         List<Timestamp> checkins = new ArrayList<>();
         String sql = "SELECT dataHora FROM CheckIn WHERE idAluno = ? ORDER BY dataHora DESC";

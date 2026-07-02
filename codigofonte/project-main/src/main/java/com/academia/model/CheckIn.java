@@ -9,6 +9,7 @@ public class CheckIn {
     private Academia academia;
     private Treino treino;
 
+    // Getters e Setters
     public int getIdCheckIn() {
         return idCheckIn;
     }
