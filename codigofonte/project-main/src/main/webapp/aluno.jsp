@@ -25,10 +25,16 @@
 </head>
 <body class="bg-light">
 
+    
     <nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
         <div class="container">
-            <span class="navbar-brand mb-0 h1 fw-bold text-warning"><i class="fas fa-user-circle me-2"></i> Espaço do Aluno</span>
-            <span class="text-white small">Olá, Isaque</span>
+            <span class="navbar-brand mb-0 h1 fw-bold text-warning">
+                <i class="fas fa-chart-line me-2"></i> Evolução e Relatórios
+            </span>
+            <div>
+                <a href="relatorio-aluno.jsp" class="btn btn-sm btn-outline-light me-2">Ver Relatorio</a>
+                <span class="text-white small">Olá, Isaque</span>
+            </div>
         </div>
     </nav>
 

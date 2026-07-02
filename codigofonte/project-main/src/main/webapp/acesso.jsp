@@ -167,17 +167,14 @@ $(document).ready(function() {
             success: function(response) {
                 // Exemplo de resposta da servlet: { success: true, message: 'Conta criada!' }
                 if (response.success) {
-                    alertBox.addClass('alert-success').text(response.message || 'Cadastro realizado! Faça login agora.').removeClass('d-none');
-                    $('#form-register')[0].reset(); // Limpa os campos
-                    btn.prop('disabled', false);
-                    spinner.addClass('d-none');
-                    
-                    // Alterna automaticamente para a aba de Login após 2 segundos
-                    setTimeout(function() {
-                        const loginTab = new bootstrap.Tab(document.querySelector('#login-tab'));
-                        loginTab.show();
-                        alertBox.addClass('d-none');
-                    }, 2000);
+                	
+               		// Cuidado: seu Java envia 'sucesso' e o JS esperava 'success'
+               	    let urlDestino = '';
+               	    if (response.role === 'ALUNO') urlDestino = 'aluno.jsp';
+               	    else if (response.role === 'FUNCIONARIO') urlDestino = 'funcionario.jsp';
+               	    else if (response.role === 'GERENTE') urlDestino = 'gerente.jsp';
+               	    window.location.href = urlDestino;
+               
                 } else {
                     alertBox.addClass('alert-danger').text(response.message || 'Erro ao registrar usuário.').removeClass('d-none');
                     btn.prop('disabled', false);

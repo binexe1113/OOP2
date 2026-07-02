@@ -35,7 +35,7 @@
                     <li class="nav-item"><a class="nav-link href="#recursos">Recursos</a></li>
                     <li class="nav-item"><a class="nav-link" href="#planos">Planos</a></li>
                     <li class="nav-item ms-lg-3">
-                        <a href="${pageContext.request.contextPath}/acesso" class="btn btn-warning fw-bold px-4">Área do Aluno</a>
+                        <a href="acesso.jsp" class="btn btn-warning fw-bold px-4">Área do Aluno</a>
                     </li>
                 </ul>
             </div>
