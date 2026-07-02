@@ -13,7 +13,7 @@ public class AuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // Inicialização do filtro (opcional)
+        // Inicialização do filtro 
     }
 
     @Override
@@ -70,6 +70,6 @@ public class AuthFilter implements Filter {
 
     @Override
     public void destroy() {
-        // Limpeza de recursos do filtro (opcional)
+        // Limpeza de recursos do filtro
     }
 }

@@ -235,3 +235,21 @@ CREATE TABLE IF NOT EXISTS Recepcionista (
         REFERENCES Funcionario (idfunc)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- -----------------------------------------------------
+-- Tabela: CheckIn
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS CheckIn (
+    idCheckIn INT AUTO_INCREMENT,
+    dataHora DATETIME DEFAULT CURRENT_TIMESTAMP,
+    idAluno INT NOT NULL,
+    idAcademia INT NOT NULL,
+    idTreino INT NULL,
+    CONSTRAINT PK_CheckIn PRIMARY KEY (idCheckIn),
+    CONSTRAINT FK_CheckIn_Aluno FOREIGN KEY (idAluno)
+        REFERENCES Aluno (idAluno) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_CheckIn_Academia FOREIGN KEY (idAcademia)
+        REFERENCES Academia (idAcademia) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_CheckIn_Treino FOREIGN KEY (idTreino)
+        REFERENCES Treino (idTreino) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
