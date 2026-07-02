@@ -24,7 +24,7 @@ public class AtivarContaServlet extends HttpServlet {
 
         if (token == null || token.trim().isEmpty()) {
             // Se não houver token, redireciona com mensagem de erro
-            response.sendRedirect(request.getContextPath() + "/login.jsp?erroAtivacao=invalido");
+            response.sendRedirect(request.getContextPath() + "/acesso.jsp?erroAtivacao=invalido");
             return;
         }
 
@@ -38,17 +38,17 @@ public class AtivarContaServlet extends HttpServlet {
 
                 if (ativado) {
                     // Redireciona informando sucesso
-                    response.sendRedirect(request.getContextPath() + "/login.jsp?ativado=true");
+                    response.sendRedirect(request.getContextPath() + "/acesso.jsp?ativado=true");
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/login.jsp?erroAtivacao=banco");
+                    response.sendRedirect(request.getContextPath() + "/acesso.jsp?erroAtivacao=banco");
                 }
             } else {
                 // Token expirado ou não encontrado
-                response.sendRedirect(request.getContextPath() + "/login.jsp?erroAtivacao=nao_encontrado");
+                response.sendRedirect(request.getContextPath() + "/acesso.jsp?erroAtivacao=nao_encontrado");
             }
 
         } catch (SQLException e) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp?erroAtivacao=db_erro");
+            response.sendRedirect(request.getContextPath() + "/acesso.jsp?erroAtivacao=db_erro");
         }
     }
 }

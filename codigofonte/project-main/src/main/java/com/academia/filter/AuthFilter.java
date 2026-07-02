@@ -29,8 +29,7 @@ public class AuthFilter implements Filter {
         // 1. Definir quais caminhos são públicos e não precisam de login
         boolean ehRecursoPublico = path.equals("/") || 
                                    path.equals("/index.jsp") || 
-                                   path.equals("/login.jsp") || 
-                                   path.equals("/cadastro.jsp") || 
+                                   path.equals("/acesso.jsp") || 
                                    path.equals("/recuperar.jsp") || 
                                    path.equals("/redefinir.jsp") ||
                                    path.startsWith("/api/login") || 
@@ -53,7 +52,7 @@ public class AuthFilter implements Filter {
 
         // 3. Se não for público e o usuário não estiver logado, redireciona para o login
         if (usuarioLogado == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/acesso.jsp");
             return;
         }
 

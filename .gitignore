@@ -88,3 +88,6 @@ nb-configuration.xml
 ## Miscellaneous
 ##############################
 *.log
+
+# Tomcat Base local
+codigofonte/project-main/tomcat-base/
