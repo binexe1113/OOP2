@@ -1,9 +1,8 @@
+DROP DATABASE IF EXISTS sistema_academia;
 CREATE DATABASE IF NOT EXISTS sistema_academia;
 USE sistema_academia;
 
--- -----------------------------------------------------
 -- Tabela: Plano
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS Plano (
     idPlano INT AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
@@ -13,9 +12,7 @@ CREATE TABLE IF NOT EXISTS Plano (
     CONSTRAINT PK_Plano PRIMARY KEY (idPlano)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
 -- Tabela: Matricula
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS Matricula (
     idMatricula INT AUTO_INCREMENT,
     dataInicio DATE NOT NULL,
@@ -28,9 +25,7 @@ CREATE TABLE IF NOT EXISTS Matricula (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
 -- Tabela: Usuario
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS Usuario (
     idUsuario INT AUTO_INCREMENT,
     emailLogin VARCHAR(255) NOT NULL UNIQUE,
@@ -41,9 +36,7 @@ CREATE TABLE IF NOT EXISTS Usuario (
     CONSTRAINT PK_Usuario PRIMARY KEY (idUsuario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
 -- Tabela: Aluno
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS Aluno (
     idAluno INT AUTO_INCREMENT,
     nome VARCHAR(150) NOT NULL,
@@ -62,9 +55,7 @@ CREATE TABLE IF NOT EXISTS Aluno (
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
 -- Tabela: Academia
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS Academia (
     idAcademia INT AUTO_INCREMENT,
     nome VARCHAR(150) NOT NULL,
@@ -74,23 +65,7 @@ CREATE TABLE IF NOT EXISTS Academia (
     CONSTRAINT PK_Academia PRIMARY KEY (idAcademia)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
--- Tabela: Treino
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS Treino (
-    idTreino INT AUTO_INCREMENT,
-    descricao TEXT NOT NULL,
-    dataInicio DATE NOT NULL,
-    idAluno INT NOT NULL UNIQUE,
-    CONSTRAINT PK_Treino PRIMARY KEY (idTreino),
-    CONSTRAINT FK_Treino_Aluno FOREIGN KEY (idAluno)
-        REFERENCES Aluno (idAluno)
-        ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- -----------------------------------------------------
--- Tabela: Funcionario
--- -----------------------------------------------------
+-- Tabela: Funcionario (Deve vir antes de Treino por causa da FK)
 CREATE TABLE IF NOT EXISTS Funcionario (
     idfunc INT AUTO_INCREMENT,
     nome VARCHAR(150) NOT NULL,
@@ -108,9 +83,22 @@ CREATE TABLE IF NOT EXISTS Funcionario (
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
--- Tabela: Gerente (Herança/Especialização de Funcionario)
--- -----------------------------------------------------
+-- Tabela: Treino (Agora com todas as colunas integradas)
+CREATE TABLE IF NOT EXISTS Treino (
+    idTreino INT AUTO_INCREMENT,
+    descricao TEXT NOT NULL,
+    dataInicio DATE NOT NULL,
+    dataFim DATE NULL,
+    idAluno INT NOT NULL UNIQUE,
+    idProfessor INT NULL,
+    CONSTRAINT PK_Treino PRIMARY KEY (idTreino),
+    CONSTRAINT FK_Treino_Aluno FOREIGN KEY (idAluno)
+        REFERENCES Aluno (idAluno) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_Treino_Professor FOREIGN KEY (idProfessor)
+        REFERENCES Funcionario (idfunc) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela: Gerente
 CREATE TABLE IF NOT EXISTS Gerente (
     idfunc INT NOT NULL,
     bonificacao DECIMAL(10, 2) NOT NULL,
@@ -121,9 +109,7 @@ CREATE TABLE IF NOT EXISTS Gerente (
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- -----------------------------------------------------
 -- Tabela: CheckIn
--- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS CheckIn (
     idCheckIn INT AUTO_INCREMENT,
     dataHora DATETIME DEFAULT CURRENT_TIMESTAMP,
