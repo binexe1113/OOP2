@@ -145,7 +145,9 @@
                             
                             <div class="mb-3 p-3 bg-light rounded border-start border-primary border-4">
                                 <div class="small text-muted">Professor Responsável</div>
-                                <div class="fw-bold text-dark"><%= treinoLogado.getProfessor().getNome() %></div>
+                                <div class="fw-bold text-dark">
+								    <%= (treinoLogado.getProfessor() != null) ? treinoLogado.getProfessor().getNome() : "Professor não atribuído" %>
+								</div>
                                 <div class="small text-muted mt-2">Período de Validade</div>
                                 <div class="fw-medium text-secondary">
                                     <%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(treinoLogado.getDataInicio()) %> até 

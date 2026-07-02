@@ -41,12 +41,20 @@ Antes de iniciar a aplicação, certifique-se de que o servidor MySQL está roda
 --- C. USUÁRIOS DE WINDOWS ---
 1. Abra o Prompt de Comando (cmd) ou o PowerShell.
 2. Defina a variável CATALINA_HOME apontando para a pasta onde você extraiu o Apache Tomcat:
-   set CATALINA_HOME=C:\Caminho\Ate\apache-tomcat-11.0.xx
-3. Navegue até a pasta de ambiente do projeto:
-   cd codigofonte\ambiente
-4. Execute o arquivo batch:
+
+3. Pressione a tecla Win e digite "Variáveis de Ambiente".
+4. Selecione "Editar as variáveis de ambiente do sistema".
+5. Na janela que abrir, clique no botão "Variáveis de Ambiente".
+6. Em Variáveis do Sistema (a lista de baixo), clique em Novo.
+7. Nome da variável: CATALINA_HOME
+8. Exemplo de "valor da variável": C:\apache-tomcat-11.0.23
+
+Clique em OK em todas as janelas.
+Importante: Feche todas as janelas do prompt de comando (CMD) que estiverem abertas e abra uma nova para que ela reconheça a mudança.  
+
+9. Execute o arquivo batch que esta na pasta OOP2\codigofonte\ambiente :
    redeploy.bat
-5. O script compilará o Maven, gerará as pastas locais do Tomcat na pasta ambiente e subirá o servidor automaticamente.
+10. O script compilará o Maven, gerará as pastas locais do Tomcat na pasta ambiente e subirá o servidor automaticamente.
 
 --- D. EXECUÇÃO DIRETAMENTE VIA IDE (INTELLIJ IDEA OU ECLIPSE) ---
 Caso prefira não utilizar a linha de comando, você pode importar e rodar o projeto por uma IDE:

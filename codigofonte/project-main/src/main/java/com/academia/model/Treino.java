@@ -9,9 +9,11 @@ public class Treino {
     private Date dataFim;
     private Professor professor;
 
+    // Construtor vazio
     public Treino() {
     }
 
+    // Construtor completo
     public Treino(int idTreino, String descricao, Date dataInicio, Date dataFim, Professor professor) {
         this.idTreino = idTreino;
         this.descricao = descricao;
@@ -20,6 +22,7 @@ public class Treino {
         this.professor = professor;
     }
 
+    // Getters e Setters
     public int getIdTreino() {
         return idTreino;
     }
