@@ -30,12 +30,11 @@ public class FuncionarioServlet extends HttpServlet {
 
         String acao = request.getParameter("acao");
         if ("obterTreino".equals(acao)) {
-            String idAlunoStr = request.getParameter("id_aluno");
-            if (idAlunoStr != null) {
+            String cpfAluno = request.getParameter("cpf_aluno");
+            if (cpfAluno != null) {
                 try {
-                    int idAluno = Integer.parseInt(idAlunoStr);
-                    List<String> blocosAtivos = obterBlocosAtivosAluno(idAluno);
-                    response.getWriter().write(gson.toJson(blocosAtivos));
+                    JsonObject treinoInfo = obterTreinoEFichaAluno(cpfAluno);
+                    response.getWriter().write(gson.toJson(treinoInfo));
                     return;
                 } catch (Exception e) {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -68,10 +67,10 @@ public class FuncionarioServlet extends HttpServlet {
 
         try {
             if ("vincularTreino".equals(acao)) {
-                String idAlunoStr = request.getParameter("id_aluno");
+                String cpfAluno = request.getParameter("cpf_aluno");
                 String[] treinosSelecionados = request.getParameterValues("treinos");
 
-                if (idAlunoStr == null || treinosSelecionados == null || treinosSelecionados.length == 0) {
+                if (cpfAluno == null || treinosSelecionados == null || treinosSelecionados.length == 0) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     jsonResponse.addProperty("success", false);
                     jsonResponse.addProperty("message", "Por favor, selecione um aluno e pelo menos um bloco de treino.");
@@ -79,8 +78,6 @@ public class FuncionarioServlet extends HttpServlet {
                     return;
                 }
 
-                int idAluno = Integer.parseInt(idAlunoStr);
-                
                 // Constrói a descrição combinada dos blocos
                 String descricaoConsolidada = construirDescricaoTreino(treinosSelecionados);
 
@@ -92,7 +89,7 @@ public class FuncionarioServlet extends HttpServlet {
                     return;
                 }
 
-                boolean sucesso = salvarTreinoAluno(idAluno, descricaoConsolidada);
+                boolean sucesso = salvarTreinoAlunoPorCpf(cpfAluno, descricaoConsolidada);
                 if (sucesso) {
                     jsonResponse.addProperty("success", true);
                     jsonResponse.addProperty("message", "Ficha de treinos do aluno atualizada com sucesso!");
@@ -138,23 +135,32 @@ public class FuncionarioServlet extends HttpServlet {
         response.getWriter().write(gson.toJson(jsonResponse));
     }
 
-    private List<String> obterBlocosAtivosAluno(int idAluno) throws SQLException {
+    private JsonObject obterTreinoEFichaAluno(String cpf) throws SQLException {
+        JsonObject result = new JsonObject();
         List<String> blocos = new ArrayList<>();
-        String sql = "SELECT descricao FROM Treino WHERE idAluno = ?";
+        String fichaTreino = "Aluno sem treinos atribuídos.";
+        
+        String sql = "SELECT t.descricao FROM Aluno a LEFT JOIN Treino t ON a.idAluno = t.idAluno WHERE a.cpf = ?";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idAluno);
+            ps.setString(1, cpf);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String desc = rs.getString("descricao");
-                    if (desc.contains("Treino A -")) blocos.add("A");
-                    if (desc.contains("Treino B -")) blocos.add("B");
-                    if (desc.contains("Treino C -")) blocos.add("C");
-                    if (desc.contains("Treino D -")) blocos.add("D");
+                    if (desc != null && !desc.trim().isEmpty()) {
+                        fichaTreino = desc;
+                        if (desc.contains("Treino A -")) blocos.add("A");
+                        if (desc.contains("Treino B -")) blocos.add("B");
+                        if (desc.contains("Treino C -")) blocos.add("C");
+                        if (desc.contains("Treino D -")) blocos.add("D");
+                    }
                 }
             }
         }
-        return blocos;
+        
+        result.add("blocosAtivos", gson.toJsonTree(blocos));
+        result.addProperty("fichaTreino", fichaTreino);
+        return result;
     }
 
     private String construirDescricaoTreino(String[] blocos) throws SQLException {
@@ -186,26 +192,38 @@ public class FuncionarioServlet extends HttpServlet {
         return sb.toString().trim();
     }
 
-    private boolean salvarTreinoAluno(int idAluno, String descricao) throws SQLException {
-        int idProfessor = 1;
-        String sqlProf = "SELECT idProfessor FROM Professor LIMIT 1";
+    private boolean salvarTreinoAlunoPorCpf(String cpf, String descricao) throws SQLException {
+        int idAluno = -1;
+        String sqlAluno = "SELECT idAluno FROM Aluno WHERE cpf = ?";
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement psProf = conn.prepareStatement(sqlProf);
-             ResultSet rsProf = psProf.executeQuery()) {
-            if (rsProf.next()) {
-                idProfessor = rsProf.getInt("idProfessor");
+             PreparedStatement ps = conn.prepareStatement(sqlAluno)) {
+            ps.setString(1, cpf);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    idAluno = rs.getInt("idAluno");
+                }
             }
         }
 
-        String sql = "INSERT INTO Treino (descricao, dataInicio, dataFim, idAluno, idProfessor) "
-                   + "VALUES (?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 6 MONTH), ?, ?) "
-                   + "ON DUPLICATE KEY UPDATE descricao = VALUES(descricao), dataInicio = VALUES(dataInicio), dataFim = VALUES(dataFim), idProfessor = VALUES(idProfessor)";
+        if (idAluno == -1) {
+            return false;
+        }
+        return salvarTreinoFichaAluno(idAluno, descricao);
+    }
+
+    private boolean salvarTreinoFichaAluno(int idAluno, String descricao) throws SQLException {
+        if (idAluno <= 0) {
+            return false;
+        }
+
+        String sql = "INSERT INTO Treino (descricao, dataInicio, idAluno) "
+                   + "VALUES (?, CURDATE(), ?) "
+                   + "ON DUPLICATE KEY UPDATE descricao = VALUES(descricao), dataInicio = VALUES(dataInicio)";
         
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, descricao);
             ps.setInt(2, idAluno);
-            ps.setInt(3, idProfessor);
             return ps.executeUpdate() > 0;
         }
     }

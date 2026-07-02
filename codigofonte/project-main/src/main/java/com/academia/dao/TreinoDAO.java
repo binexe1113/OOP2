@@ -1,6 +1,5 @@
 package com.academia.dao;
 
-import com.academia.model.Professor;
 import com.academia.model.Treino;
 import com.academia.util.DbConnection;
 
@@ -15,10 +14,7 @@ public class TreinoDAO {
 
     public List<Treino> listarTodos() throws SQLException {
         List<Treino> treinos = new ArrayList<>();
-        String sql = "SELECT t.*, prof.nome AS prof_nome, prof.cpf AS prof_cpf, prof.email AS prof_email, " +
-                     "prof.telefone AS prof_telefone, prof.valorHoraAula AS prof_valorHora " +
-                     "FROM Treino t " +
-                     "INNER JOIN Professor prof ON t.idProfessor = prof.idProfessor";
+        String sql = "SELECT t.* FROM Treino t";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -30,11 +26,7 @@ public class TreinoDAO {
     }
 
     public Treino buscarPorAluno(int idAluno) throws SQLException {
-        String sql = "SELECT t.*, prof.nome AS prof_nome, prof.cpf AS prof_cpf, prof.email AS prof_email, " +
-                     "prof.telefone AS prof_telefone, prof.valorHoraAula AS prof_valorHora " +
-                     "FROM Treino t " +
-                     "INNER JOIN Professor prof ON t.idProfessor = prof.idProfessor " +
-                     "WHERE t.idAluno = ?";
+        String sql = "SELECT t.* FROM Treino t WHERE t.idAluno = ?";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, idAluno);
@@ -48,14 +40,12 @@ public class TreinoDAO {
     }
 
     public boolean criar(Treino t, int idAluno) throws SQLException {
-        String sql = "INSERT INTO Treino (descricao, dataInicio, dataFim, idAluno, idProfessor) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Treino (descricao, dataInicio, idAluno) VALUES (?, ?, ?)";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, t.getDescricao());
             ps.setDate(2, new java.sql.Date(t.getDataInicio().getTime()));
-            ps.setDate(3, new java.sql.Date(t.getDataFim().getTime()));
-            ps.setInt(4, idAluno);
-            ps.setInt(5, t.getProfessor().getIdProfessor());
+            ps.setInt(3, idAluno);
 
             int affectedRows = ps.executeUpdate();
             if (affectedRows > 0) {
@@ -71,15 +61,13 @@ public class TreinoDAO {
     }
 
     public boolean atualizar(Treino t, int idAluno) throws SQLException {
-        String sql = "UPDATE Treino SET descricao = ?, dataInicio = ?, dataFim = ?, idAluno = ?, idProfessor = ? WHERE idTreino = ?";
+        String sql = "UPDATE Treino SET descricao = ?, dataInicio = ?, idAluno = ? WHERE idTreino = ?";
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, t.getDescricao());
             ps.setDate(2, new java.sql.Date(t.getDataInicio().getTime()));
-            ps.setDate(3, new java.sql.Date(t.getDataFim().getTime()));
-            ps.setInt(4, idAluno);
-            ps.setInt(5, t.getProfessor().getIdProfessor());
-            ps.setInt(6, t.getIdTreino());
+            ps.setInt(3, idAluno);
+            ps.setInt(4, t.getIdTreino());
             return ps.executeUpdate() > 0;
         }
     }
@@ -94,20 +82,12 @@ public class TreinoDAO {
     }
 
     private Treino mapRow(ResultSet rs) throws SQLException {
-        Professor prof = new Professor();
-        prof.setIdProfessor(rs.getInt("idProfessor"));
-        prof.setNome(rs.getString("prof_nome"));
-        prof.setCpf(rs.getString("prof_cpf"));
-        prof.setEmail(rs.getString("prof_email"));
-        prof.setTelefone(rs.getString("prof_telefone"));
-        prof.setValorHoraAula(rs.getDouble("prof_valorHora"));
-
         Treino t = new Treino();
         t.setIdTreino(rs.getInt("idTreino"));
         t.setDescricao(rs.getString("descricao"));
         t.setDataInicio(rs.getDate("dataInicio"));
-        t.setDataFim(rs.getDate("dataFim"));
-        t.setProfessor(prof);
+        t.setDataFim(null);
+        t.setProfessor(null);
         return t;
     }
 }
