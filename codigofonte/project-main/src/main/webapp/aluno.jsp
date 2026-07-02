@@ -1,4 +1,37 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.academia.model.Usuario" %>
+<%@ page import="com.academia.model.Aluno" %>
+<%@ page import="com.academia.model.Treino" %>
+<%@ page import="com.academia.dao.AlunoDAO" %>
+<%@ page import="com.academia.dao.TreinoDAO" %>
+<%@ page import="com.academia.dao.CheckInDAO" %>
+<%@ page import="java.sql.Timestamp" %>
+<%@ page import="java.util.List" %>
+<%
+    // Garante que o usuário está logado e possui perfil apropriado
+    Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+    if (usuarioLogado == null) {
+        response.sendRedirect("acesso.jsp");
+        return;
+    }
+
+    Aluno alunoLogado = null;
+    Treino treinoLogado = null;
+    List<Timestamp> checkins = null;
+    
+    AlunoDAO alunoDAO = new AlunoDAO();
+    TreinoDAO treinoDAO = new TreinoDAO();
+    CheckInDAO checkInDAO = new CheckInDAO();
+    try {
+        alunoLogado = alunoDAO.buscarPorIdUsuario(usuarioLogado.getIdUsuario());
+        if (alunoLogado != null) {
+            treinoLogado = treinoDAO.buscarPorAluno(alunoLogado.getIdAluno());
+            checkins = checkInDAO.listarDatasPorAluno(alunoLogado.getIdAluno());
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+%>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -25,7 +58,6 @@
 </head>
 <body class="bg-light">
 
-    
     <nav class="navbar navbar-dark bg-primary mb-4 shadow-sm">
         <div class="container">
             <span class="navbar-brand mb-0 h1 fw-bold text-warning">
@@ -33,7 +65,8 @@
             </span>
             <div>
                 <a href="relatorio-aluno.jsp" class="btn btn-sm btn-outline-light me-2">Ver Relatorio</a>
-                <span class="text-white small">Olá, Isaque</span>
+                <span class="text-white small me-3">Olá, <%= (alunoLogado != null) ? alunoLogado.getNome() : usuarioLogado.getEmailLogin() %></span>
+                <a href="api/logout" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt me-1"></i> Sair</a>
             </div>
         </div>
     </nav>
@@ -42,141 +75,125 @@
         
         <div id="alert-aluno" class="alert d-none" role="alert"></div>
 
-        <div class="card custom-card bg-dark text-white p-4 mb-4 text-center">
-            <h4 class="fw-bold text-warning mb-2">Vai treinar hoje? 🏋️‍♂️</h4>
-            <p class="text-muted small mb-3">Selecione o treino do dia e clique no botão para registrar a sua presença.</p>
-            
-            <form id="form-checkin" class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2 max-width-500 mx-auto">
-                <select class="form-select w-auto" id="checkin-treino" name="treino_bloco" required>
-                    <option value="" selected disabled>Escolha o treino...</option>
-                    <option value="A">Treino A (Pernas / Quadríceps)</option>
-                    <option value="B">Treino B (Costas e Bíceps)</option>
-                    <option value="C">Treino C (Peito e Tríceps)</option>
-                </select>
-                <button type="submit" class="btn btn-warning fw-bold px-4 w-100 w-sm-auto" id="btn-checkin">
-                    <i class="fas fa-calendar-check me-2"></i> Fazer Check-In
-                </button>
-            </form>
-        </div>
-
-        <div class="row g-4">
-            
-            <div class="col-lg-7">
-                <div class="card custom-card p-4 bg-white h-100">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-dumbbell text-primary fs-4 me-2"></i>
-                        <h5 class="fw-bold mb-0">Minha Ficha de Exercícios</h5>
-                    </div>
-                    <p class="text-muted small">Navegue pelas abas para ver os exercícios passados pelo instrutor.</p>
-
-                    <ul class="nav nav-pills nav-fill mb-3 bg-light p-1 rounded" id="pills-tab" role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active fw-bold" id="tab-a" data-bs-toggle="pill" data-bs-target="#pane-a" type="button">Treino A</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" id="tab-b" data-bs-toggle="pill" data-bs-target="#pane-b" type="button">Treino B</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" id="tab-c" data-bs-toggle="pill" data-bs-target="#pane-c" type="button">Treino C</button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="pills-tabContent">
-                        
-                        <div class="tab-pane fade show active" id="pane-a" role="tabpanel">
-                            <div class="badge bg-secondary mb-3">Foco: Pernas e Abdominais</div>
-                            <div class="d-flex flex-column gap-2">
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Leg Press 45º</span>
-                                    <span class="badge bg-dark">4x12 - 120kg</span>
-                                </div>
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Cadeira Extensora</span>
-                                    <span class="badge bg-dark">3x15 - Drop-set</span>
-                                </div>
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Mesa Flexora</span>
-                                    <span class="badge bg-dark">4x10 - Cadência 3s</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="pane-b" role="tabpanel">
-                            <div class="badge bg-secondary mb-3">Foco: Costas e Bíceps</div>
-                            <div class="d-flex flex-column gap-2">
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Puxada Alta na Polia</span>
-                                    <span class="badge bg-dark">4x10</span>
-                                </div>
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Remada Baixa Triângulo</span>
-                                    <span class="badge bg-dark">3x12</span>
-                                </div>
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Rosca Scott (Barra W)</span>
-                                    <span class="badge bg-dark">4x8</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="pane-c" role="tabpanel">
-                            <div class="badge bg-secondary mb-3">Foco: Peito e Tríceps</div>
-                            <div class="d-flex flex-column gap-2">
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Supino Reto (Barra)</span>
-                                    <span class="badge bg-dark">4x10</span>
-                                </div>
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Crucifixo Inclinado Hálteres</span>
-                                    <span class="badge bg-dark">3x12</span>
-                                </div>
-                                <div class="p-3 rounded exercise-item d-flex justify-content-between align-items-center">
-                                    <span class="fw-medium">Tríceps Corda</span>
-                                    <span class="badge bg-dark">4x12</span>
-                                </div>
-                            </div>
-                        </div>
-
+        <% if (alunoLogado == null) { %>
+            <!-- Caso a conta do Usuário não esteja vinculada a nenhum Aluno -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card custom-card p-5 bg-white text-center shadow-sm">
+                        <i class="fas fa-exclamation-circle text-danger fs-1 mb-3"></i>
+                        <h3 class="fw-bold">ALUNO SEM TREINO ENCONTRADO</h3>
+                        <p class="text-muted">A sua conta de acesso (<strong><%= usuarioLogado.getEmailLogin() %></strong>) ainda não foi vinculada a nenhum treino.</p>
+                        <p class="text-muted">Por favor, direcione-se a um professor para que ele possa orientá-lo(a).</p>
+                        <a href="api/logout" class="btn btn-danger mt-3 px-4"><i class="fas fa-sign-out-alt me-2"></i> Efetuar Logout</a>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-5">
-                <div class="card custom-card p-4 bg-white h-100">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-history text-success fs-4 me-2"></i>
-                        <h5 class="fw-bold mb-0">Histórico de Presença</h5>
-                    </div>
-                    <p class="text-muted small">Últimos treinos concluídos salvos no sistema.</p>
-
-                    <div class="table-responsive">
-                        <table class="table table-sm table-borderless align-middle">
-                            <thead>
-                                <tr class="border-bottom text-muted small">
-                                    <th>Treino</th>
-                                    <th class="text-end">Data / Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody id="historico-checkin">
-                                <tr>
-                                    <td><span class="badge bg-primary">Treino A</span></td>
-                                    <td class="text-end text-muted small">28/06/2026 - 19:34</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="badge bg-info text-dark">Treino B</span></td>
-                                    <td class="text-end text-muted small">26/06/2026 - 08:15</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="badge bg-success">Treino C</span></td>
-                                    <td class="text-end text-muted small">25/06/2026 - 18:02</td>
-                                </tr>
-                            </tbody>
-                        </table>
+        <% } else if (alunoLogado.getMatricula() == null || !alunoLogado.getMatricula().isStatus()) { %>
+            <!-- Caso o Aluno tenha cadastro mas matrícula esteja inativa -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card custom-card p-5 bg-white text-center shadow-sm">
+                        <i class="fas fa-hand-holding-usd text-warning fs-1 mb-3"></i>
+                        <h3 class="fw-bold">Matrícula Inativa</h3>
+                        <p class="text-muted">Olá, <strong><%= alunoLogado.getNome() %></strong>. Consta no sistema que a sua matrícula ou plano está inativo no momento.</p>
+                        <p class="text-muted">Por favor, procure a recepção para regularizar sua matrícula e liberar seu acesso aos treinos e check-ins.</p>
+                        <a href="api/logout" class="btn btn-danger mt-3 px-4"><i class="fas fa-sign-out-alt me-2"></i> Efetuar Logout</a>
                     </div>
                 </div>
             </div>
+        <% } else { %>
+            <!-- Caso de matrícula ativa normal -->
+            <div class="card custom-card bg-dark text-white p-4 mb-4 text-center">
+                <h4 class="fw-bold text-warning mb-2">Vai treinar hoje? 🏋️‍♂️</h4>
+                <p class="text-muted small mb-3">Selecione o treino do dia e clique no botão para registrar a sua presença.</p>
+                
+                <form id="form-checkin" class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2 max-width-500 mx-auto">
+                    <select class="form-select w-auto" id="checkin-treino" name="treino_bloco" required>
+                        <option value="" selected disabled>Escolha o treino...</option>
+                        <option value="A">Treino A (Geral)</option>
+                    </select>
+                    <button type="submit" class="btn btn-warning fw-bold px-4 w-100 w-sm-auto" id="btn-checkin">
+                        <i class="fas fa-calendar-check me-2"></i> Fazer Check-In
+                    </button>
+                </form>
+            </div>
 
-        </div>
+            <div class="row g-4">
+                
+                <!-- Ficha de Exercícios -->
+                <div class="col-lg-7">
+                    <% if (treinoLogado == null) { %>
+                        <div class="card custom-card p-5 bg-white h-100 text-center d-flex flex-column justify-content-center align-items-center shadow-sm">
+                            <i class="fas fa-exclamation-triangle text-warning fs-1 mb-3"></i>
+                            <h4 class="fw-bold text-dark">Nenhum treino cadastrado</h4>
+                            <p class="text-muted small">Você ainda não possui uma ficha de exercícios cadastrada no sistema.</p>
+                            <p class="text-muted small">Por favor, solicite a criação de um treino personalizado diretamente ao seu professor ou instrutor físico.</p>
+                        </div>
+                    <% } else { %>
+                        <div class="card custom-card p-4 bg-white h-100">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-dumbbell text-primary fs-4 me-2"></i>
+                                <h5 class="fw-bold mb-0">Minha Ficha de Exercícios</h5>
+                            </div>
+                            
+                            <div class="mb-3 p-3 bg-light rounded border-start border-primary border-4">
+                                <div class="small text-muted">Professor Responsável</div>
+                                <div class="fw-bold text-dark"><%= treinoLogado.getProfessor().getNome() %></div>
+                                <div class="small text-muted mt-2">Período de Validade</div>
+                                <div class="fw-medium text-secondary">
+                                    <%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(treinoLogado.getDataInicio()) %> até 
+                                    <%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(treinoLogado.getDataFim()) %>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <h6 class="fw-bold mb-2"><i class="fas fa-clipboard-list me-1 text-primary"></i> Exercícios e Instruções:</h6>
+                                <div class="p-3 bg-light rounded text-dark" style="white-space: pre-line; line-height: 1.6;">
+                                    <%= treinoLogado.getDescricao() %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Histórico de Presença -->
+                <div class="col-lg-5">
+                    <div class="card custom-card p-4 bg-white h-100">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-history text-success fs-4 me-2"></i>
+                            <h5 class="fw-bold mb-0">Histórico de Presença</h5>
+                        </div>
+                        <p class="text-muted small">Últimos treinos concluídos salvos no sistema.</p>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm table-borderless align-middle">
+                                <thead>
+                                    <tr class="border-bottom text-muted small">
+                                        <th>Treino</th>
+                                        <th class="text-end">Data / Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historico-checkin">
+                                    <% if (checkins != null && !checkins.isEmpty()) { %>
+                                        <% for (Timestamp ts : checkins) { %>
+                                            <tr>
+                                                <td><span class="badge bg-success">Check-in Realizado</span></td>
+                                                <td class="text-end text-muted small"><%= new java.text.SimpleDateFormat("dd/MM/yyyy - HH:mm").format(ts) %></td>
+                                            </tr>
+                                        <% } %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="2" class="text-center text-muted small py-3">Nenhum check-in registrado ainda.</td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        <% } %>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -191,39 +208,45 @@
 
             let btn = $('#btn-checkin');
             let alertBox = $('#alert-aluno');
-            let treinoSelecionado = $('#checkin-treino').val();
 
             btn.prop('disabled', true);
             alertBox.addClass('d-none').removeClass('alert-success alert-danger');
 
+            let idTreino = <%= (treinoLogado != null) ? treinoLogado.getIdTreino() : "null" %>;
             $.ajax({
-                url: 'AlunoController', // <-- URL da sua Servlet para controle do Aluno
+                url: 'api/checkin',
                 type: 'POST',
-                data: {
-                    acao: 'checkin',
-                    treino: treinoSelecionado
-                },
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    idAcademia: 1,
+                    idTreino: idTreino
+                }),
                 dataType: 'json',
                 success: function(response) {
-                    if (response.success) {
-                        alertBox.removeClass('d-none').addClass('alert-success').text('Check-in do Treino ' + treinoSelecionado + ' salvo com sucesso! Bom descanso.');
+                    if (response.sucesso) {
+                        alertBox.removeClass('d-none').addClass('alert-success').text(response.mensagem || 'Check-in realizado com sucesso!');
                         
-                        // Adiciona dinamicamente a linha nova na tabela de histórico sem dar reload
                         let agora = new Date();
                         let dataFormatada = agora.toLocaleDateString('pt-BR') + ' - ' + agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
                         
                         let novaLinha = '<tr>' +
-                            '<td><span class="badge bg-secondary">Treino ' + treinoSelecionado + '</span></td>' +
+                            '<td><span class="badge bg-success">Check-in Realizado</span></td>' +
                             '<td class="text-end text-muted small">' + dataFormatada + '</td>' +
                             '</tr>';
                         
+                        // Remove a linha de "Nenhum check-in registrado ainda"
+                        $('#historico-checkin').find('.text-center').closest('tr').remove();
                         $('#historico-checkin').prepend(novaLinha);
                     } else {
-                        alertBox.removeClass('d-none').addClass('alert-danger').text(response.message || 'Erro ao realizar check-in.');
+                        alertBox.removeClass('d-none').addClass('alert-danger').text(response.mensagem || 'Erro ao realizar check-in.');
                     }
                 },
-                error: function() {
-                    alertBox.removeClass('d-none').addClass('alert-danger').text('Erro técnico de comunicação ao enviar check-in.');
+                error: function(xhr) {
+                    let msg = 'Erro técnico de comunicação ao enviar check-in.';
+                    if (xhr.responseJSON && xhr.responseJSON.mensagem) {
+                        msg = xhr.responseJSON.mensagem;
+                    }
+                    alertBox.removeClass('d-none').addClass('alert-danger').text(msg);
                 },
                 complete: function() {
                     btn.prop('disabled', false);

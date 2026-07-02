@@ -1,4 +1,21 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.academia.model.Usuario" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="com.academia.util.DbConnection" %>
+<%
+    // Garante que apenas usuários logados com perfil FUNCIONARIO ou GERENTE possam acessar
+    Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+    if (usuarioLogado == null) {
+        response.sendRedirect("acesso.jsp");
+        return;
+    }
+    if (!"FUNCIONARIO".equalsIgnoreCase(usuarioLogado.getRole()) && !"GERENTE".equalsIgnoreCase(usuarioLogado.getRole())) {
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso restrito para instrutores/funcionários.");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -19,8 +36,13 @@
 
     <nav class="navbar navbar-dark bg-secondary mb-4">
         <div class="container">
-            <span class="navbar-brand mb-0 h1 fw-bold text-warning"><i class="fas fa-dumbbell me-2"></i> Painel do Instrutor</span>
-            <span class="text-white">Olá, Professor</span>
+            <span class="navbar-brand mb-0 h1 fw-bold text-warning">
+                <i class="fas fa-dumbbell me-2"></i> Painel do Instrutor
+            </span>
+            <div>
+                <span class="text-white small me-3">Olá, <%= usuarioLogado.getEmailLogin() %></span>
+                <a href="api/logout" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt me-1"></i> Sair</a>
+            </div>
         </div>
     </nav>
 
@@ -29,6 +51,7 @@
 
         <div class="row g-4">
             
+            <!-- Atribuir / Trocar Treino do Aluno -->
             <div class="col-lg-6">
                 <div class="card custom-card p-4 h-100 bg-white">
                     <h5 class="fw-bold text-dark mb-3"><i class="fas fa-user-edit text-primary me-2"></i> Atribuir / Trocar Treino do Aluno</h5>
@@ -37,10 +60,33 @@
                     <form id="form-vincular-treino">
                         <div class="mb-3">
                             <label for="select-aluno" class="form-label fw-semibold">Selecionar Aluno</label>
-                            <select class="form-select" id="select-aluno" name="cpf_aluno" required>
+                            <select class="form-select" id="select-aluno" name="id_aluno" required>
                                 <option value="" selected disabled>Escolha um aluno...</option>
-                                <option value="11122233344">Isaque (CPF: 111.222.333-44)</option>
-                                <option value="99988877766">Rodrigo Silva (CPF: 999.888.777-66)</option>
+                                <%
+                                    Connection conn = null;
+                                    PreparedStatement ps = null;
+                                    ResultSet rs = null;
+                                    try {
+                                        conn = DbConnection.getConnection();
+                                        String sql = "SELECT idAluno, nome, cpf FROM Aluno ORDER BY nome ASC";
+                                        ps = conn.prepareStatement(sql);
+                                        rs = ps.executeQuery();
+                                        while (rs.next()) {
+                                            int idAluno = rs.getInt("idAluno");
+                                            String nome = rs.getString("nome");
+                                            String cpf = rs.getString("cpf");
+                                %>
+                                            <option value="<%= idAluno %>"><%= nome %> (CPF: <%= cpf %>)</option>
+                                <%
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        if (rs != null) try { rs.close(); } catch (Exception e) {}
+                                        if (ps != null) try { ps.close(); } catch (Exception e) {}
+                                        if (conn != null) try { conn.close(); } catch (Exception e) {}
+                                    }
+                                %>
                             </select>
                         </div>
 
@@ -49,20 +95,20 @@
                             <p class="text-muted card-text small mt-0 mb-2">Os treinos selecionados serão vinculados diretamente ao perfil do aluno.</p>
                             
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-a" value="1">
-                                <label class="form-check-input-label fw-medium" for="chk-a">Treino A</label>
+                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-a" value="A">
+                                <label class="form-check-label fw-medium" for="chk-a">Treino A</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-b" value="2">
-                                <label class="form-check-input-label fw-medium" for="chk-b">Treino B</label>
+                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-b" value="B">
+                                <label class="form-check-label fw-medium" for="chk-b">Treino B</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-c" value="3">
-                                <label class="form-check-input-label fw-medium" for="chk-c">Treino C</label>
+                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-c" value="C">
+                                <label class="form-check-label fw-medium" for="chk-c">Treino C</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-d" value="4">
-                                <label class="form-check-input-label fw-medium" for="chk-d">Treino D</label>
+                                <input class="form-check-input chk-treino" type="checkbox" name="treinos" id="chk-d" value="D">
+                                <label class="form-check-label fw-medium" for="chk-d">Treino D</label>
                             </div>
                         </div>
 
@@ -74,6 +120,7 @@
                 </div>
             </div>
 
+            <!-- Criar / Editar Bloco de Treino -->
             <div class="col-lg-6">
                 <div class="card custom-card p-4 h-100 bg-white">
                     <h5 class="fw-bold text-dark mb-3"><i class="fas fa-folder-plus text-success me-2"></i> Criar / Editar Bloco de Treino</h5>
@@ -129,11 +176,39 @@
             } else {
                 alertBox.addClass('alert-danger').text(mensagem);
             }
-            // Rola a página suavemente para o topo onde está o alerta
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- AJAX 1: VINCULAR OU TROCAR TREINO DO ALUNO ---
+        // --- CARREGAR TREINOS DO ALUNO AO SELECIONAR ---
+        $('#select-aluno').on('change', function() {
+            let idAluno = $(this).val();
+            if (!idAluno) return;
+
+            // Limpa checkboxes
+            $('.chk-treino').prop('checked', false);
+
+            $.ajax({
+                url: 'FuncionarioController',
+                type: 'GET',
+                data: {
+                    acao: 'obterTreino',
+                    id_aluno: idAluno
+                },
+                dataType: 'json',
+                success: function(blocosAtivos) {
+                    if (Array.isArray(blocosAtivos)) {
+                        blocosAtivos.forEach(function(bloco) {
+                            $('.chk-treino[value="' + bloco + '"]').prop('checked', true);
+                        });
+                    }
+                },
+                error: function() {
+                    console.log('Erro ao buscar treinos ativos do aluno.');
+                }
+            });
+        });
+
+        // --- VINCULAR OU TROCAR TREINO DO ALUNO ---
         $('#form-vincular-treino').on('submit', function(e) {
             e.preventDefault();
             
@@ -146,9 +221,9 @@
             let formData = $(this).serialize();
 
             $.ajax({
-                url: 'FuncionarioController', // <-- URL da Servlet de controle do Funcionário
+                url: 'FuncionarioController',
                 type: 'POST',
-                data: formData + '&acao=vincularTreino', // Envia flag de ação
+                data: formData + '&acao=vincularTreino',
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
@@ -157,8 +232,12 @@
                         exibirAlerta(response.message || 'Erro ao atualizar treinos do aluno.', false);
                     }
                 },
-                error: function() {
-                    exibirAlerta('Erro técnico de comunicação ao salvar a ficha do aluno.', false);
+                error: function(xhr) {
+                    let msg = 'Erro técnico de comunicação ao salvar a ficha do aluno.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    exibirAlerta(msg, false);
                 },
                 complete: function() {
                     btn.prop('disabled', false);
@@ -167,7 +246,7 @@
             });
         });
 
-        // --- AJAX 2: CRIAR OU EDITAR UM BLOCO DE TREINO ---
+        // --- CRIAR OU EDITAR UM BLOCO DE TREINO ---
         $('#form-criar-treino').on('submit', function(e) {
             e.preventDefault();
             
@@ -180,9 +259,9 @@
             let formData = $(this).serialize();
 
             $.ajax({
-                url: 'FuncionarioController', // <-- Mesma Servlet cuidando da criação de estruturas
+                url: 'FuncionarioController',
                 type: 'POST',
-                data: formData + '&acao=criarBloco', // Envia flag de ação diferente
+                data: formData + '&acao=criarBloco',
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
@@ -192,8 +271,12 @@
                         exibirAlerta(response.message || 'Erro ao salvar o bloco de treino.', false);
                     }
                 },
-                error: function() {
-                    exibirAlerta('Erro técnico de comunicação ao salvar o bloco.', false);
+                error: function(xhr) {
+                    let msg = 'Erro técnico de comunicação ao salvar o bloco.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    exibirAlerta(msg, false);
                 },
                 complete: function() {
                     btn.prop('disabled', false);
@@ -201,10 +284,6 @@
                 }
             });
         });
-
-        // Evento extra opcional: Quando o funcionário trocar o aluno no Select, 
-        // você poderia disparar um AJAX GET rápido para buscar quais treinos ele já tem ativos 
-        // e marcar os checkboxes automaticamente na tela.
     });
     </script>
 </body>

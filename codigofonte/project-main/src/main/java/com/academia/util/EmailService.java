@@ -63,7 +63,7 @@ public class EmailService {
         message.setSubject("Recuperação de Senha - Academia");
 
         // Link direcionando para a página JSP de redefinição de senha
-        String linkRedefinir = "http://localhost:8080" + contextPath + "/redefinir.jsp?token=" + token;
+        String linkRedefinir = "http://localhost:8080" + contextPath + "/acesso.jsp?token=" + token;
         
         String htmlContent = "<h3>Recuperação de Senha</h3>"
                 + "<p>Recebemos uma solicitação de alteração de senha para sua conta.</p>"
